@@ -1,7 +1,6 @@
 import arcade
 from deck import Deck, Compra, Drag, Apos, Bpos
 from datetime import timedelta
-from PIL import Image
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
