@@ -82,6 +82,7 @@ class Paciencia(arcade.Window):
         self.drawCards()
         self.foi = False
         self.tempo = 0
+        self.pronto = False
         
     def drawMarcas(self):
         arcade.draw_lrtb_rectangle_outline(self.deck_left, self.deck_right, self.deck_top, self.deck_bottom, arcade.color.WINE, 5) # deck
@@ -139,10 +140,20 @@ class Paciencia(arcade.Window):
         self.pos6[-1].turn_card()
     
     def on_update(self, deltatime):
-        if self.foi:
+        if self.foi and not self.pronto:
             self.tempo += deltatime
-        if self.H.next_card == 'N' and self.S.next_card == 'N' and self.D.next_card == 'N' and self.C.next_card == 'N' and self.foi:
+        if self.H.next_card == 'N' and self.S.next_card == 'N' and self.D.next_card == 'N' and self.C.next_card == 'N' and self.foi and not self.pronto:
             self.foi = False
+            self.pronto = True
+        if self.pronto and len(self.H) > 0 and len(self.S) > 0 and len(self.D) > 0 and len(self.C) > 0:
+            self.H[-1].set_position(self.H[-1].center_x, self.H[-1].center_y - 500 * deltatime)
+            if self.H[-1].center_y <= 0: self.H[-1].kill()
+            self.S[-1].set_position(self.S[-1].center_x, self.S[-1].center_y - 500 * deltatime)
+            if self.S[-1].center_y <= 0: self.S[-1].kill()
+            self.D[-1].set_position(self.D[-1].center_x, self.D[-1].center_y - 500 * deltatime)
+            if self.D[-1].center_y <= 0: self.D[-1].kill()
+            self.C[-1].set_position(self.C[-1].center_x, self.C[-1].center_y - 500 * deltatime)
+            if self.C[-1].center_y <= 0: self.C[-1].kill()
     
     def on_draw(self):
         self.clear()
