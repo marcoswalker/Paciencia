@@ -83,6 +83,8 @@ class Paciencia(arcade.Window):
         self.foi = False
         self.tempo = 0
         self.pronto = False
+        self.pontos = 100
+        self.somou = False
         
     def drawMarcas(self):
         arcade.draw_lrtb_rectangle_outline(self.deck_left, self.deck_right, self.deck_top, self.deck_bottom, arcade.color.WINE, 5) # deck
@@ -98,6 +100,7 @@ class Paciencia(arcade.Window):
         arcade.draw_lrtb_rectangle_outline(self.pos4_left, self.pos4_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos4
         arcade.draw_lrtb_rectangle_outline(self.pos5_left, self.pos5_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos5
         arcade.draw_lrtb_rectangle_outline(self.pos6_left, self.pos6_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos6
+        arcade.draw_text(text = "Pontos: {}".format(str(self.pontos)), start_x = self.pos5_left, start_y = 10, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
         tempo = str(timedelta(seconds=self.tempo)).split(":")
         texto = "{:02d}:{:02d}:{:02d}".format(int(tempo[0]), int(tempo[1]), int(tempo[2].split('.')[0]))
         arcade.draw_text(text = texto, start_x = self.pos6_left, start_y = 10, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
@@ -142,18 +145,25 @@ class Paciencia(arcade.Window):
     def on_update(self, deltatime):
         if self.foi and not self.pronto:
             self.tempo += deltatime
+            if round(self.tempo) % 10 == 0 and round(self.tempo) >= 10:
+                if not self.somou:
+                    self.pontos -= 2
+                    self.somou = True
+            else:
+                self.somou = False
         if self.H.next_card == 'N' and self.S.next_card == 'N' and self.D.next_card == 'N' and self.C.next_card == 'N' and self.foi and not self.pronto:
             self.foi = False
             self.pronto = True
+            self.pontos += int(625000 / self.tempo)
         if self.pronto and len(self.H) > 0 and len(self.S) > 0 and len(self.D) > 0 and len(self.C) > 0:
             self.H[-1].set_position(self.H[-1].center_x, self.H[-1].center_y - 500 * deltatime)
-            if self.H[-1].center_y <= 0: self.H[-1].kill()
+            if self.H[-1].center_y + self.H[-1].height/2 <= 0: self.H[-1].kill()
             self.S[-1].set_position(self.S[-1].center_x, self.S[-1].center_y - 500 * deltatime)
-            if self.S[-1].center_y <= 0: self.S[-1].kill()
+            if self.S[-1].center_y + self.S[-1].height/2 <= 0: self.S[-1].kill()
             self.D[-1].set_position(self.D[-1].center_x, self.D[-1].center_y - 500 * deltatime)
-            if self.D[-1].center_y <= 0: self.D[-1].kill()
+            if self.D[-1].center_y + self.D[-1].height/2 <= 0: self.D[-1].kill()
             self.C[-1].set_position(self.C[-1].center_x, self.C[-1].center_y - 500 * deltatime)
-            if self.C[-1].center_y <= 0: self.C[-1].kill()
+            if self.C[-1].center_y + self.C[-1].height/2 <= 0: self.C[-1].kill()
     
     def on_draw(self):
         self.clear()
@@ -318,6 +328,8 @@ class Paciencia(arcade.Window):
                 self.pos6.remove_last()
                 retorno = True
                 self.turnCard()
+        if retorno:
+            self.pontos += 10
         return retorno
         
     def on_mouse_motion(self, x, y, dx, dy):
@@ -358,6 +370,7 @@ class Paciencia(arcade.Window):
                     else:
                         self.deck.extend_deck(self.compra)
                         self.compra.clear()
+                        self.pontos -= 100
                 elif (x >= self.deck_left-10 and x<= self.deck_left+50) and (y >= 5 and y <= 25):
                     self.setup()
             else: # Draging
@@ -366,54 +379,86 @@ class Paciencia(arcade.Window):
                     if len(self.drag) == 1 and self.H.check_next(self.drag[0]):
                         self.drag.clear_drag()
                         self.turnCard()
+                        self.pontos += 10
                         find = True
                 elif (self.drag[0].center_x >= self.S_left and self.drag[0].center_x <= self.S_right) and (self.drag[0].center_y >= self.deck_bottom and self.drag[0].center_y <= self.deck_top): # S
                     if len(self.drag) == 1 and self.S.check_next(self.drag[0]):
                         self.drag.clear_drag()
                         self.turnCard()
+                        self.pontos += 10
                         find = True
                 elif (self.drag[0].center_x >= self.D_left and self.drag[0].center_x <= self.D_right) and (self.drag[0].center_y >= self.deck_bottom and self.drag[0].center_y <= self.deck_top): # D
                     if len(self.drag) == 1 and self.D.check_next(self.drag[0]):
                         self.drag.clear_drag()
                         self.turnCard()
+                        self.pontos += 10
                         find = True
                 elif (self.drag[0].center_x >= self.C_left and self.drag[0].center_x <= self.C_right) and (self.drag[0].center_y >= self.deck_bottom and self.drag[0].center_y <= self.deck_top): # C
                     if len(self.drag) == 1 and self.C.check_next(self.drag[0]):
                         self.drag.clear_drag()
                         self.turnCard()
+                        self.pontos += 10
                         find = True
                 elif (self.drag[0].center_x >= self.pos0_left and self.drag[0].center_x <= self.pos0_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos0): # pos0
                     if self.pos0.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos1_left and self.drag[0].center_x <= self.pos1_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos1): # pos1
                     if self.pos1.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos2_left and self.drag[0].center_x <= self.pos2_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos2): # pos2
                     if self.pos2.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos3_left and self.drag[0].center_x <= self.pos3_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos3): # pos3
                     if self.pos3.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos4_left and self.drag[0].center_x <= self.pos4_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos4): # pos4
                     if self.pos4.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos5_left and self.drag[0].center_x <= self.pos5_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos5): # pos5
                     if self.pos5.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
                 elif (self.drag[0].center_x >= self.pos6_left and self.drag[0].center_x <= self.pos6_right) and (self.drag[0].center_y >= self.pos0_bottom and self.drag[0].center_y <= self.pos0_top) or self.drag[0].collides_with_list(self.pos6): # pos6
                     if self.pos6.check_next(self.drag):
+                        if self.drag.drag_from == 'H' or self.drag.drag_from == 'S' or self.drag.drag_from == 'D' or self.drag.drag_from == 'C':
+                            self.pontos -= 15
+                        elif self.drag.drag_from == 'compra':
+                            self.pontos += 5
                         self.drag.clear_drag()
                         self.turnCard()
                         find = True
