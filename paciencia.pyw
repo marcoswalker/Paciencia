@@ -100,12 +100,12 @@ class Paciencia(arcade.Window):
         arcade.draw_lrtb_rectangle_outline(self.pos4_left, self.pos4_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos4
         arcade.draw_lrtb_rectangle_outline(self.pos5_left, self.pos5_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos5
         arcade.draw_lrtb_rectangle_outline(self.pos6_left, self.pos6_right, self.pos0_top, self.pos0_bottom, arcade.color.WINE, 5) # pos6
-        arcade.draw_text(text = "Pontos: {}".format(str(self.pontos)), start_x = self.pos5_left, start_y = 10, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
+        arcade.draw_text(text = "Pontos: {}".format(str(self.pontos)), start_x = self.pos2_left, start_y = self.deck_top - SPACER*2, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
         tempo = str(timedelta(seconds=self.tempo)).split(":")
         texto = "{:02d}:{:02d}:{:02d}".format(int(tempo[0]), int(tempo[1]), int(tempo[2].split('.')[0]))
-        arcade.draw_text(text = texto, start_x = self.pos6_left, start_y = 10, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
-        arcade.draw_text(text = 'Novo', start_x = self.deck_left, start_y = 10, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
-        arcade.draw_lrtb_rectangle_outline(self.deck_left-10, self.deck_left + 50, 25, 5, arcade.color.BLACK, 5)
+        arcade.draw_text(text = texto, start_x = self.pos2_left, start_y = self.deck_top - SPACER, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
+        arcade.draw_text(text = 'Novo', start_x = self.pos2.pos[0]-10, start_y = self.deck_top-SPACER*4, color = arcade.color.BLACK, font_name = ('arial'), bold = True)
+        arcade.draw_lrtb_rectangle_outline(self.pos2.pos[0]-20, self.pos2.pos[0] + 40, self.deck_top-SPACER*4 + 15, self.deck_top-SPACER*4 - 10, arcade.color.BLACK, 5)
         
     def drawCards(self):
         self.deck.shuffle()
@@ -371,7 +371,7 @@ class Paciencia(arcade.Window):
                         self.deck.extend_deck(self.compra)
                         self.compra.clear()
                         self.pontos -= 100
-                elif (x >= self.deck_left-10 and x<= self.deck_left+50) and (y >= 5 and y <= 25):
+                elif (x >= self.pos2.pos[0]-20 and x<= self.pos2.pos[0] + 40) and (y >= self.deck_top-SPACER*4 - 10 and y <= self.deck_top-SPACER*4 + 15):
                     self.setup()
             else: # Draging
                 find = False
